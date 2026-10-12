@@ -331,6 +331,7 @@ input[type=datetime-local]::-webkit-calendar-picker-indicator{opacity:.4;cursor:
     <div class="live-row"><div class="ldot" id="ldot"></div><span class="live-txt" id="liveLabel">Fetching...</span></div>
     <div class="tbi" onclick="fetchPrices(true)" title="Refresh"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div>
     <div class="tbi" onclick="driveSync()" title="Backup"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+    <div class="tbi" onclick="openSettings()" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
     <div class="tbi lo" onclick="doLogout()" title="Logout"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
   </div>
 </div>
@@ -451,6 +452,7 @@ input[type=datetime-local]::-webkit-calendar-picker-indicator{opacity:.4;cursor:
               <option value="BNB">BNB</option>
               <option value="DOGE">DOGE</option>
               <option value="ADA">ADA</option>
+              <option value="TRX">TRON (TRX)</option>
             </select>
           </div>
           <div>
@@ -492,6 +494,7 @@ input[type=datetime-local]::-webkit-calendar-picker-indicator{opacity:.4;cursor:
         <div class="hchip" onclick="setHF('SOL',this)">SOL</div>
         <div class="hchip" onclick="setHF('ETH',this)">ETH</div>
         <div class="hchip" onclick="setHF('USDT',this)">USDT</div>
+        <div class="hchip" onclick="setHF('TRX',this)">TRX</div>
       </div>
       <div class="hsum">
         <div class="hsc"><div class="hs-l">Invested</div><div class="hs-v" id="hsI" style="color:var(--blue)">₹0</div></div>
@@ -519,6 +522,63 @@ input[type=datetime-local]::-webkit-calendar-picker-indicator{opacity:.4;cursor:
 </nav>
 
 </div><!-- appWrap -->
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settingsModal" onclick="if(event.target===this)closeSettings()">
+  <div class="modal-sheet" style="max-height:90vh">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⚙ Settings</div>
+    <div style="padding:0 16px 20px;overflow-y:auto">
+
+      <!-- Supabase section -->
+      <div style="background:var(--blue-ll);border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:4px">☁ Supabase Database</div>
+        <div style="font-size:12px;color:var(--text3);line-height:1.6;margin-bottom:12px">Connect a free Supabase database so your trades sync across all devices and survive browser cache clears.</div>
+        <div id="sbStatus" style="display:none;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:12px"></div>
+        <div class="flbl" style="margin-top:0">Supabase Project URL</div>
+        <div class="fw" style="margin-bottom:10px"><input class="fi" type="text" id="sbUrlInp" placeholder="https://xxxx.supabase.co" style="font-size:13px"></div>
+        <div class="flbl">Anon / Public Key</div>
+        <div class="fw" style="margin-bottom:12px"><input class="fi" type="text" id="sbKeyInp" placeholder="eyJhbGciOiJIUzI1NiIs..." style="font-size:12px"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button onclick="saveSupabaseConfig()" style="padding:11px;font-family:var(--font);font-size:14px;font-weight:700;border:none;border-radius:10px;cursor:pointer;background:var(--blue);color:#fff">Save & Connect</button>
+          <button onclick="clearSupabaseConfig()" style="padding:11px;font-family:var(--font);font-size:14px;font-weight:700;border:1.5px solid var(--border2);border-radius:10px;cursor:pointer;background:var(--bg);color:var(--text3)">Clear Config</button>
+        </div>
+      </div>
+
+      <!-- SQL instructions -->
+      <details style="margin-bottom:16px">
+        <summary style="font-size:13px;font-weight:700;color:var(--blue);cursor:pointer;padding:10px 0">📋 How to set up Supabase (step by step) ›</summary>
+        <div style="font-size:12px;color:var(--text2);line-height:1.8;margin-top:10px">
+          <b>1.</b> Go to <b>supabase.com</b> → New project (free tier)<br>
+          <b>2.</b> Go to <b>SQL Editor</b> and run this SQL:<br>
+          <div style="background:#1A2332;color:#E8ECF2;padding:12px;border-radius:8px;margin:8px 0;font-family:monospace;font-size:11px;line-height:1.7;overflow-x:auto;white-space:pre">create table trades (
+  id bigint primary key,
+  asset text, pair text,
+  type text, trade_id text,
+  date text, price numeric,
+  qty numeric, fee numeric default 0,
+  gst numeric default 0,
+  total numeric, notes text
+);
+alter table trades enable row level security;
+create policy "open" on trades
+  for all using (true) with check (true);</div>
+          <b>3.</b> Go to <b>Project Settings → API</b><br>
+          <b>4.</b> Copy <b>Project URL</b> and <b>anon / public key</b><br>
+          <b>5.</b> Paste them above and tap Save &amp; Connect
+        </div>
+      </details>
+
+      <!-- Connected status -->
+      <div id="sbConnectedInfo" style="display:none;background:var(--green-l);border:1px solid #B2EFD8;border-radius:10px;padding:12px 14px">
+        <div style="font-size:13px;font-weight:700;color:var(--green)">✓ Connected to Supabase</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px" id="sbProjectUrl"></div>
+        <button onclick="sbPushAll()" style="margin-top:10px;width:100%;padding:10px;font-family:var(--font);font-size:14px;font-weight:700;border:none;border-radius:9px;cursor:pointer;background:var(--green);color:#fff">↑ Push all local trades to Supabase</button>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <!-- COIN SELECTOR MODAL -->
 <div class="modal-overlay" id="coinModal" onclick="if(event.target===this)closeModal()">
@@ -588,11 +648,11 @@ function toggleEye(){const i=document.getElementById('lnPass');i.type=i.type==='
 checkSession();
 
 // ═══════════ CONSTANTS ═══════════
-const SYM={BTC:'₿',SOL:'◎',ETH:'Ξ',USDT:'₮',XRP:'✕',BNB:'B',DOGE:'Ð',ADA:'₳',OTHER:'◆'};
-const CLR={BTC:'#F7931A',SOL:'#9945FF',ETH:'#627EEA',USDT:'#26A17B',XRP:'#3461DF',BNB:'#F3BA2F',DOGE:'#C2A633',ADA:'#0033AD',OTHER:'#8FA0BA'};
-const FULL={BTC:'Bitcoin',SOL:'Solana',ETH:'Ethereum',USDT:'Tether',XRP:'XRP',BNB:'Binance Coin',DOGE:'Dogecoin',ADA:'Cardano',OTHER:'Other'};
-const BSYM={BTC:'BTCUSDT',SOL:'SOLUSDT',ETH:'ETHUSDT',XRP:'XRPUSDT',BNB:'BNBUSDT',DOGE:'DOGEUSDT',ADA:'ADAUSDT'};
-const COINS=['BTC','SOL','ETH','USDT','XRP','BNB','DOGE','ADA'];
+const SYM={BTC:'₿',SOL:'◎',ETH:'Ξ',USDT:'₮',XRP:'✕',BNB:'B',DOGE:'Ð',ADA:'₳',TRX:'T',OTHER:'◆'};
+const CLR={BTC:'#F7931A',SOL:'#9945FF',ETH:'#627EEA',USDT:'#26A17B',XRP:'#3461DF',BNB:'#F3BA2F',DOGE:'#C2A633',ADA:'#0033AD',TRX:'#E50915',OTHER:'#8FA0BA'};
+const FULL={BTC:'Bitcoin',SOL:'Solana',ETH:'Ethereum',USDT:'Tether',XRP:'XRP',BNB:'Binance Coin',DOGE:'Dogecoin',ADA:'Cardano',TRX:'TRON',OTHER:'Other'};
+const BSYM={BTC:'BTCUSDT',SOL:'SOLUSDT',ETH:'ETHUSDT',XRP:'XRPUSDT',BNB:'BNBUSDT',DOGE:'DOGEUSDT',ADA:'ADAUSDT',TRX:'TRXUSDT'};
+const COINS=['BTC','SOL','ETH','USDT','XRP','BNB','DOGE','ADA','TRX'];
 const STORE='cl_v6';const PRICE_CACHE='zl_prices_v1';const ALERTS_STORE='zl_alerts_v1';
 
 const SEED=[
@@ -632,8 +692,9 @@ function initApp(){
   alerts=JSON.parse(localStorage.getItem(ALERTS_STORE)||'[]');
   setDateNow();
   loadCachedPrices();
-  updateTCS();renderMarkets();renderPortfolio();renderHistory();renderAnalytics();
+  try{updateTCS();renderMarkets();renderPortfolio();renderHistory();renderAnalytics();}catch(e){console.error('render error',e);}
   fetchPrices(false);
+  if(sbReady())syncFromSupabase(); // pull latest from Supabase on every login
   if(priceInterval)clearInterval(priceInterval);
   priceInterval=setInterval(()=>fetchPrices(false),60000);
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')fetchPrices(false);});
@@ -850,6 +911,7 @@ function addTrade(){
   const total=(price*qty)+fee+gst;
   trades.unshift({id:Date.now(),asset:selCoin,pair:`${selCoin}/INR`,type:bsTab,tradeId:tradeId||'—',date:dateVal,price,qty,fee,gst,total,notes});
   save();
+  sbInsert(trades[0]); // sync to Supabase (non-blocking)
   ['fTradeId','fPrice','fQty','fFee','fGST','fNotes'].forEach(id=>document.getElementById(id).value='');
   ['fbBase','fbFee','fbGST','fbTotal'].forEach(id=>document.getElementById(id).textContent='—');
   setDateNow();
@@ -993,7 +1055,7 @@ function renderHistory(){
   el.innerHTML=data.map(t=>{const c=CLR[t.asset]||'#8FA0BA';return`<div class="tx"><div class="txic" style="background:${c}18;color:${c}">${SYM[t.asset]||'◆'}</div><div class="txmid"><div class="txr1"><div class="txsym"><span class="txb ${t.type==='BUY'?'buy':'sell'}">${t.type}</span>${t.asset}</div><div class="txamt">${fINR(t.total,2)}</div></div><div class="txr2"><div class="txmeta">${fDt(t.date)} · ID: ${t.tradeId||'—'}</div><div class="txqty">${fQty(t.qty,t.asset)} @ ${fINR(t.price,0)}</div></div>${t.notes?`<div style="font-size:11px;color:var(--text3);margin-top:3px">💬 ${t.notes}</div>`:''}</div><button class="tx-del" onclick="delT(${t.id})">✕</button></div>`;}).join('');
 }
 function setHF(f,el){histF=f;document.querySelectorAll('.hchip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderHistory();}
-function delT(id){if(!confirm('Delete this trade?'))return;trades=trades.filter(t=>t.id!==id);save();renderHistory();renderPortfolio();renderAnalytics();toast('Trade removed');}
+function delT(id){if(!confirm('Delete this trade?'))return;trades=trades.filter(t=>t.id!==id);save();sbDelete(id);renderHistory();renderPortfolio();renderAnalytics();toast('Trade removed');}
 
 // ═══════════ TAX / REALIZED P&L ═══════════
 function renderTax(){
@@ -1054,6 +1116,102 @@ async function driveSync(){
   try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:200,messages:[{role:"user",content:`Save cryptolog_trades.json in Google Drive root: ${JSON.stringify(trades).substring(0,600)}... (${trades.length} trades).`}],mcp_servers:[{type:"url",url:"https://drivemcp.googleapis.com/mcp/v1",name:"gdrive"}]})});const d=await r.json();if(d.content){toast('✓ Backed up to Drive');return;}}catch(e){}
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(trades,null,2)],{type:'application/json'}));a.download='cryptolog_trades.json';a.click();
   toast('📥 Downloaded — upload to Drive manually');
+}
+
+// ═══════════ SETTINGS ═══════════
+function openSettings(){
+  const url=localStorage.getItem('zl_sb_url')||'';
+  const key=localStorage.getItem('zl_sb_key')||'';
+  document.getElementById('sbUrlInp').value=url;
+  document.getElementById('sbKeyInp').value=key;
+  refreshConnectedUI();
+  document.getElementById('settingsModal').classList.add('show');
+}
+function closeSettings(){document.getElementById('settingsModal').classList.remove('show');}
+function refreshConnectedUI(){
+  const url=localStorage.getItem('zl_sb_url')||'';
+  const ci=document.getElementById('sbConnectedInfo');
+  if(url){ci.style.display='block';document.getElementById('sbProjectUrl').textContent=url;}
+  else ci.style.display='none';
+}
+
+// ═══════════ SUPABASE (REST API — no SDK needed) ═══════════
+const SB_URL_KEY='zl_sb_url', SB_KEY_KEY='zl_sb_key';
+function sbUrl(){return localStorage.getItem(SB_URL_KEY)||'';}
+function sbKey(){return localStorage.getItem(SB_KEY_KEY)||'';}
+function sbReady(){return !!(sbUrl()&&sbKey());}
+function sbHeaders(){return{'apikey':sbKey(),'Authorization':'Bearer '+sbKey(),'Content-Type':'application/json','Prefer':'return=minimal'};}
+
+async function sbFetchAll(){
+  if(!sbReady())return null;
+  try{
+    const r=await fetch(sbUrl()+'/rest/v1/trades?select=*&order=id.asc',{headers:sbHeaders()});
+    if(!r.ok)throw new Error(r.status);
+    const rows=await r.json();
+    return rows.map(row=>({id:row.id,asset:row.asset,pair:row.pair||row.asset+'/INR',type:row.type,tradeId:row.trade_id||'—',date:row.date,price:parseFloat(row.price),qty:parseFloat(row.qty),fee:parseFloat(row.fee)||0,gst:parseFloat(row.gst)||0,total:parseFloat(row.total),notes:row.notes||''}));
+  }catch(e){return null;}
+}
+
+async function sbInsert(trade){
+  if(!sbReady())return;
+  try{
+    await fetch(sbUrl()+'/rest/v1/trades',{method:'POST',headers:sbHeaders(),body:JSON.stringify({id:trade.id,asset:trade.asset,pair:trade.pair,type:trade.type,trade_id:trade.tradeId,date:trade.date,price:trade.price,qty:trade.qty,fee:trade.fee,gst:trade.gst,total:trade.total,notes:trade.notes})});
+  }catch(e){}
+}
+
+async function sbDelete(id){
+  if(!sbReady())return;
+  try{await fetch(sbUrl()+'/rest/v1/trades?id=eq.'+id,{method:'DELETE',headers:sbHeaders()});}catch(e){}
+}
+
+async function syncFromSupabase(){
+  if(!sbReady())return;
+  toast('☁ Syncing from Supabase...');
+  const rows=await sbFetchAll();
+  if(rows&&rows.length){
+    trades=rows;save();
+    renderPortfolio();renderHistory();renderAnalytics();
+    toast('✓ Synced '+rows.length+' trades from Supabase');
+  } else if(rows&&rows.length===0){
+    toast('Supabase connected — no trades there yet');
+  } else {
+    toast('⚠ Could not reach Supabase');
+  }
+}
+
+async function sbPushAll(){
+  if(!sbReady()||!trades.length){toast('Nothing to push');return;}
+  toast('↑ Pushing all trades...');
+  // Delete all existing then re-insert
+  try{
+    await fetch(sbUrl()+'/rest/v1/trades?id=gte.0',{method:'DELETE',headers:sbHeaders()});
+    for(const t of trades){await sbInsert(t);}
+    toast('✓ Pushed '+trades.length+' trades to Supabase');
+  }catch(e){toast('⚠ Push failed — check config');}
+}
+
+async function saveSupabaseConfig(){
+  const url=(document.getElementById('sbUrlInp').value||'').trim().replace(/\/$/,'');
+  const key=(document.getElementById('sbKeyInp').value||'').trim();
+  const st=document.getElementById('sbStatus');
+  if(!url||!key){st.style.display='block';st.style.background='var(--red-l)';st.style.color='var(--red)';st.textContent='⚠ Enter both URL and key';return;}
+  st.style.display='block';st.style.background='var(--blue-l)';st.style.color='var(--blue)';st.textContent='Testing connection...';
+  try{
+    const r=await fetch(url+'/rest/v1/trades?select=count&limit=1',{headers:{'apikey':key,'Authorization':'Bearer '+key}});
+    if(!r.ok)throw new Error(r.status);
+    localStorage.setItem(SB_URL_KEY,url);localStorage.setItem(SB_KEY_KEY,key);
+    st.style.background='var(--green-l)';st.style.color='var(--green)';st.textContent='✓ Connected! Syncing trades...';
+    refreshConnectedUI();
+    await syncFromSupabase();
+  }catch(e){st.style.background='var(--red-l)';st.style.color='var(--red)';st.textContent='⚠ Connection failed. Check URL and key.';}
+}
+
+function clearSupabaseConfig(){
+  localStorage.removeItem(SB_URL_KEY);localStorage.removeItem(SB_KEY_KEY);
+  document.getElementById('sbUrlInp').value='';document.getElementById('sbKeyInp').value='';
+  document.getElementById('sbStatus').style.display='none';
+  refreshConnectedUI();
+  toast('Supabase config cleared');
 }
 
 // ═══════════ SAVE / TOAST ═══════════
