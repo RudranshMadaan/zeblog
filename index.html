@@ -1118,6 +1118,9 @@ async function driveSync(){
   toast('📥 Downloaded — upload to Drive manually');
 }
 
+// ═══════════ SUPABASE CONSTANTS ═══════════
+const SB_URL_KEY='zl_sb_url', SB_KEY_KEY='zl_sb_key';
+
 // ═══════════ SETTINGS ═══════════
 function openSettings(){
   const url=localStorage.getItem('zl_sb_url')||'';
@@ -1136,7 +1139,6 @@ function refreshConnectedUI(){
 }
 
 // ═══════════ SUPABASE (REST API — no SDK needed) ═══════════
-const SB_URL_KEY='zl_sb_url', SB_KEY_KEY='zl_sb_key';
 function sbUrl(){return localStorage.getItem(SB_URL_KEY)||'';}
 function sbKey(){return localStorage.getItem(SB_KEY_KEY)||'';}
 function sbReady(){return !!(sbUrl()&&sbKey());}
