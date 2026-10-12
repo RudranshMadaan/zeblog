@@ -645,7 +645,6 @@ function doLogout(){
   document.getElementById('ldot').style.background='var(--green)';document.getElementById('liveLabel').textContent='Fetching...';
 }
 function toggleEye(){const i=document.getElementById('lnPass');i.type=i.type==='password'?'text':'password';document.getElementById('eyeBtn').textContent=i.type==='password'?'👁':'🙈';}
-checkSession();
 
 // ═══════════ CONSTANTS ═══════════
 const SYM={BTC:'₿',SOL:'◎',ETH:'Ξ',USDT:'₮',XRP:'✕',BNB:'B',DOGE:'Ð',ADA:'₳',TRX:'T',OTHER:'◆'};
@@ -1220,6 +1219,9 @@ function clearSupabaseConfig(){
 function save(){localStorage.setItem(STORE,JSON.stringify(trades));}
 let _tt;
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2500);}
+
+// ═══════════ BOOTSTRAP — must be last ═══════════
+checkSession();
 </script>
 </body>
 </html>
