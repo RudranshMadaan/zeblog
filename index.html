@@ -1197,13 +1197,13 @@ async function saveSupabaseConfig(){
   if(!url||!key){st.style.display='block';st.style.background='var(--red-l)';st.style.color='var(--red)';st.textContent='⚠ Enter both URL and key';return;}
   st.style.display='block';st.style.background='var(--blue-l)';st.style.color='var(--blue)';st.textContent='Testing connection...';
   try{
-    const r=await fetch(url+'/rest/v1/trades?select=count&limit=1',{headers:{'apikey':key,'Authorization':'Bearer '+key}});
-    if(!r.ok)throw new Error(r.status);
+    const r=await fetch(url+'/rest/v1/trades?select=id&limit=1',{headers:{'apikey':key,'Authorization':'Bearer '+key,'Content-Type':'application/json'}});
+    if(!r.ok){const txt=await r.text().catch(()=>'');throw new Error(r.status+' '+txt.slice(0,80));}
     localStorage.setItem(SB_URL_KEY,url);localStorage.setItem(SB_KEY_KEY,key);
     st.style.background='var(--green-l)';st.style.color='var(--green)';st.textContent='✓ Connected! Syncing trades...';
     refreshConnectedUI();
     await syncFromSupabase();
-  }catch(e){st.style.background='var(--red-l)';st.style.color='var(--red)';st.textContent='⚠ Connection failed. Check URL and key.';}
+  }catch(e){st.style.background='var(--red-l)';st.style.color='var(--red)';st.textContent='⚠ Failed: '+e.message;}
 }
 
 function clearSupabaseConfig(){
